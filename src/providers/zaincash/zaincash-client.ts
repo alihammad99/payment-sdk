@@ -2,8 +2,8 @@ import { ZaincashConfig } from './types';
 import * as jwt from 'jsonwebtoken';
 
 export class ZaincashClient {
-    private baseUrlTest = 'https://pg-api-uat.zaincash.iq/api/v2';
-    private baseUrlProd = 'https://api.zaincash.iq/api/v2'; // Hypothetical prod URL
+    private baseUrlTest = 'https://test.zaincash.iq';
+    private baseUrlProd = 'https://api.zaincash.iq';
 
     constructor(private config: ZaincashConfig) { }
 
@@ -19,27 +19,26 @@ export class ZaincashClient {
             // Extract merchantId from body as it should NOT be in the JWT payload
             const { merchantId, ...transactionData } = body;
 
-            // Add lang field to the JWT payload
+            // Create JWT payload with numeric timestamps (NOT using expiresIn)
+            const now = Math.floor(Date.now() / 1000);
             const payload = {
                 ...transactionData,
-                lang: 'en'
+                iat: now,
+                exp: now + (60 * 60 * 4)  // Token expires in 4 hours
             };
 
-            // Generate JWT token from the payload with expiration
-            jwtToken = jwt.sign(payload, this.config.secret, {
-                algorithm: 'HS256',
-                expiresIn: '1h'  // Token expires in 1 hour
-            });
+            // Generate JWT token from the payload
+            jwtToken = jwt.sign(payload, this.config.secret);
         }
 
         // The request body should contain the token, merchantId, and lang
         const requestBody = {
             token: jwtToken,
             merchantId: body.merchantId,
-            lang: 'en'
+            lang: body.lang || 'en'
         };
 
-        const response = await fetch(`${this.baseUrl}/payment-gateway/transaction/init`, {
+        const response = await fetch(`${this.baseUrl}/transaction/init`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

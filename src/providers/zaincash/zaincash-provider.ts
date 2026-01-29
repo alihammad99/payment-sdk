@@ -24,7 +24,8 @@ export class ZaincashProvider implements PaymentProvider {
                 msisdn: this.config.msisdn,
                 orderId: payload.orderId || `order-${Date.now()}`,
                 redirectUrl: payload.callbackUrl || 'https://example.com/callback',
-                merchantId: this.config.merchantId
+                merchantId: this.config.merchantId,
+                lang: 'en'
             };
 
             const data = await this.client.initTransaction(body);
