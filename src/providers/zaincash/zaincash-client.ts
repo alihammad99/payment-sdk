@@ -12,23 +12,39 @@ export class ZaincashClient {
     }
 
     async initTransaction(body: any, token?: string) {
-        // Generate JWT token from the body data if not provided
-        let authToken = token || this.config.token;
+        // Generate JWT token from the transaction data
+        let jwtToken = token || this.config.token;
 
-        if (!authToken) {
-            // Generate JWT token from the body
-            authToken = jwt.sign(body, this.config.secret, {
-                algorithm: 'HS256'
+        if (!jwtToken) {
+            // Extract merchantId from body as it should NOT be in the JWT payload
+            const { merchantId, ...transactionData } = body;
+
+            // Add lang field to the JWT payload
+            const payload = {
+                ...transactionData,
+                lang: 'en'
+            };
+
+            // Generate JWT token from the payload with expiration
+            jwtToken = jwt.sign(payload, this.config.secret, {
+                algorithm: 'HS256',
+                expiresIn: '1h'  // Token expires in 1 hour
             });
         }
+
+        // The request body should contain the token, merchantId, and lang
+        const requestBody = {
+            token: jwtToken,
+            merchantId: body.merchantId,
+            lang: 'en'
+        };
 
         const response = await fetch(`${this.baseUrl}/payment-gateway/transaction/init`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${authToken}`
+                'Content-Type': 'application/json'
             },
-            body: JSON.stringify(body)
+            body: JSON.stringify(requestBody)
         });
 
         const text = await response.text();
