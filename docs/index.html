@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment SDK Documentation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@400;600;700;800&display=swap"
+        rel="stylesheet">
+    <!-- Prism.js Theme -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <nav class="sidebar">
+        <a href="#" class="brand">Payment SDK</a>
+
+        <div class="nav-group">
+            <div class="nav-group-title">Getting Started</div>
+            <ul class="nav-links">
+                <li><a href="#introduction">Introduction</a></li>
+                <li><a href="#installation">Installation</a></li>
+                <li><a href="#quick-start">Quick Start</a></li>
+            </ul>
+        </div>
+
+        <div class="nav-group">
+            <div class="nav-group-title">Providers</div>
+            <ul class="nav-links">
+                <li><a href="#alqasa">Alqasa</a></li>
+                <li><a href="#zaincash">ZainCash</a></li>
+                <li><a href="#stripe">Stripe</a></li>
+                <li><a href="#asiapay">AsiaPay</a></li>
+            </ul>
+        </div>
+
+        <div class="nav-group">
+            <div class="nav-group-title">API Reference</div>
+            <ul class="nav-links">
+                <li><a href="#types">Types</a></li>
+                <li><a href="#error-handling">Error Handling</a></li>
+            </ul>
+        </div>
+
+        <div class="nav-group">
+            <ul class="nav-links">
+                <li><a href="https://github.com/your-username/payment-sdk" target="_blank" class="github-link">⭐
+                        GitHub</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <section id="introduction" class="section">
+            <h1>Payment SDK</h1>
+            <p>A unified, type-safe Node.js SDK for integrating multiple payment providers. Simplify your payment
+                processing with a consistent API across Alqasa, ZainCash, Stripe, and AsiaPay.</p>
+            <ul>
+                <li>⚡ <strong>Unified Interface</strong>: One way to do payments, multiple providers.</li>
+                <li>🛡️ <strong>Type-Safe</strong>: Written in TypeScript for robust development.</li>
+                <li>🚀 <strong>Easy Integration</strong>: Get up and running in minutes.</li>
+            </ul>
+        </section>
+
+        <section id="installation" class="section">
+            <h2>Installation</h2>
+            <p>Install the package using npm:</p>
+            <pre><code class="language-bash">npm install payment-sdk</code></pre>
+        </section>
+
+        <section id="quick-start" class="section">
+            <h2>Quick Start</h2>
+            <p>Here's how to get started with the SDK:</p>
+            <pre><code class="language-typescript">import { AlqasaClient } from 'payment-sdk';
+
+// Initialize the client
+const client = new AlqasaClient('your-api-token');
+
+// Create a payment
+const payment = await client.createPayment({
+    amount: 5000,
+    currency: 'IQD',
+    orderId: 'ORD-001'
+});</code></pre>
+        </section>
+
+        <section id="alqasa" class="section">
+            <h2>Alqasa Integration</h2>
+            <p>Alqasa is a primary provider for local credit card payments.</p>
+
+            <h3>Configuration</h3>
+            <pre><code class="language-typescript">// Option 1: Using Token
+const client = new AlqasaClient('TOKEN');
+
+// Option 2: Using Credentials
+const client = new AlqasaClient({
+    clientId: 'CLIENT_ID',
+    clientSecret: 'SECRET'
+});</code></pre>
+
+            <h3>Create Payment</h3>
+            <pre><code class="language-typescript">const response = await client.createPayment({
+    amount: 1000,
+    currency: 'IQD',
+    description: 'Test Order',
+    orderId: '12345'
+});</code></pre>
+        </section>
+
+        <section id="zaincash" class="section">
+            <h2>ZainCash Integration</h2>
+            <p>Support for ZainCash e-wallet payments.</p>
+            <pre><code class="language-typescript">import { ZaincashClient } from 'payment-sdk';
+
+const zain = new ZaincashClient({
+    production: false,
+    merchantId: 'MERCHANT_ID',
+    secret: 'SECRET_KEY',
+    token: 'JWT_TOKEN'
+});
+
+const tx = await zain.initTransaction({
+    amount: 2500,
+    serviceType: 'Goods',
+    msisdn: '9647800000000',
+    orderId: 'ORDER_002',
+    redirectUrl: 'https://mysite.com/callback'
+});</code></pre>
+        </section>
+
+        <section id="stripe" class="section">
+            <h2>Stripe Integration</h2>
+            <p>Stripe integration using Checkout Sessions for international card payments.</p>
+
+            <h3>Configuration</h3>
+            <pre><code class="language-typescript">import { StripeProvider } from 'payment-sdk';
+
+const stripe = new StripeProvider();
+await stripe.init({
+    secretKey: 'sk_test_YOUR_SECRET_KEY'
+});</code></pre>
+
+            <h3>Create Payment</h3>
+            <pre><code class="language-typescript">const response = await stripe.createPayment({
+    amount: 5000,
+    currency: 'usd',
+    description: 'Product Purchase',
+    orderId: 'ORDER_789',
+    callbackUrl: 'https://yoursite.com/success',
+    customer: {
+        email: 'customer@example.com'
+    }
+});
+
+// Returns session with redirectUrl to Stripe Checkout
+console.log(response.redirectUrl);</code></pre>
+
+            <h3>Check Payment Status</h3>
+            <pre><code class="language-typescript">const status = await stripe.checkStatus(transactionId);
+console.log(status.status); // 'COMPLETED', 'PENDING', or 'FAILED'</code></pre>
+        </section>
+
+        <section id="asiapay" class="section">
+            <h2>AsiaPay Integration</h2>
+            <p>AsiaPay payment gateway for Asian market payment processing.</p>
+
+            <h3>Configuration</h3>
+            <pre><code class="language-typescript">import { AsiapayProvider } from 'payment-sdk';
+
+const asiapay = new AsiapayProvider();
+await asiapay.init({
+    production: false,
+    appId: 'YOUR_APP_ID',
+    appSecret: 'YOUR_APP_SECRET',
+    merchCode: 'YOUR_MERCHANT_CODE',
+    privateKey: 'YOUR_PRIVATE_KEY'
+});</code></pre>
+
+            <h3>Create Order</h3>
+            <pre><code class="language-typescript">const response = await asiapay.createPayment({
+    amount: 10000,
+    currency: 'IQD',
+    orderId: 'ORDER_999',
+    description: 'Order Payment',
+    callbackUrl: 'https://yoursite.com/callback',
+    notifyUrl: 'https://yoursite.com/webhook'
+});
+
+console.log(response.redirectUrl);</code></pre>
+        </section>
+
+        <section id="error-handling" class="section">
+            <h2>Error Handling</h2>
+            <p>The SDK throws structured errors that you should catch and handle.</p>
+            <pre><code class="language-typescript">try {
+    await client.createPayment({...});
+} catch (error) {
+    if (error.message) {
+        console.error('API Error:', error.message);
+    } else {
+        console.error('Unknown Error:', error);
+    }
+}</code></pre>
+        </section>
+
+        <footer
+            style="margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--border-color); color: #6b7280; font-size: 0.9rem;">
+            <p>&copy; 2026 Payment SDK. All rights reserved.</p>
+        </footer>
+    </main>
+    <!-- Prism.js Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-typescript.min.js"></script>
+
+    <!-- Copy to Clipboard Functionality -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Find all <pre> elements and wrap them with a container
+            const preElements = document.querySelectorAll('pre');
+
+            preElements.forEach(pre => {
+                // Create wrapper div
+                const wrapper = document.createElement('div');
+                wrapper.className = 'code-wrapper';
+
+                // Create copy button
+                const copyButton = document.createElement('button');
+                copyButton.className = 'copy-button';
+                copyButton.textContent = 'Copy';
+
+                // Insert wrapper before pre
+                pre.parentNode.insertBefore(wrapper, pre);
+
+                // Move pre into wrapper and add button
+                wrapper.appendChild(pre);
+                wrapper.appendChild(copyButton);
+
+                // Add click event
+                copyButton.addEventListener('click', async () => {
+                    const code = pre.querySelector('code').textContent;
+
+                    try {
+                        await navigator.clipboard.writeText(code);
+                        copyButton.textContent = 'Copied!';
+                        copyButton.classList.add('copied');
+
+                        setTimeout(() => {
+                            copyButton.textContent = 'Copy';
+                            copyButton.classList.remove('copied');
+                        }, 2000);
+                    } catch (err) {
+                        console.error('Failed to copy:', err);
+                        copyButton.textContent = 'Failed';
+                        setTimeout(() => {
+                            copyButton.textContent = 'Copy';
+                        }, 2000);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>

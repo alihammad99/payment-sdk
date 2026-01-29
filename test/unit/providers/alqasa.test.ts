@@ -1,0 +1,76 @@
+import { AlqasaProvider } from '../../../src/providers/alqasa/alqasa-provider';
+import { AlqasaClient } from '../../../src/providers/alqasa/alqasa-client';
+
+// Mock AlqasaClient
+jest.mock('../../../src/providers/alqasa/alqasa-client');
+
+describe('AlqasaProvider', () => {
+    let provider: AlqasaProvider;
+    const config = {
+        token: 'test-token'
+    };
+
+    beforeEach(() => {
+        jest.clearAllMocks();
+        provider = new AlqasaProvider();
+    });
+
+    it('should initialize with client', async () => {
+        await provider.init(config);
+        expect(AlqasaClient).toHaveBeenCalledWith('test-token');
+    });
+
+    it('should create payment successfully', async () => {
+        await provider.init(config);
+
+        const mockClientInstance = (AlqasaClient as jest.Mock).mock.instances[0];
+        mockClientInstance.createPayment.mockResolvedValue({
+            payment_id: '12345',
+            redirect_url: 'http://example.com'
+        });
+
+        const payload = {
+            amount: 100,
+            currency: 'IQD',
+            description: 'Test'
+        };
+
+        const result = await provider.createPayment(payload);
+
+        expect(mockClientInstance.createPayment).toHaveBeenCalledWith(expect.objectContaining({
+            amount: 100,
+            currency: 'IQD',
+            description: 'Test'
+        }));
+
+        expect(result).toEqual({
+            success: true,
+            transactionId: '12345',
+            redirectUrl: 'http://example.com',
+            raw: expect.anything()
+        });
+    });
+
+    it('should handle errors during payment creation', async () => {
+        await provider.init(config);
+
+        const mockClientInstance = (AlqasaClient as jest.Mock).mock.instances[0];
+        mockClientInstance.createPayment.mockRejectedValue({
+            message: 'API Error'
+        });
+
+        const payload = { amount: 100, currency: 'IQD' };
+        const result = await provider.createPayment(payload);
+
+        expect(result).toEqual({
+            success: false,
+            error: 'API Error',
+            raw: expect.anything()
+        });
+    });
+
+    it('should throw error if not initialized', async () => {
+        await expect(provider.createPayment({ amount: 100, currency: 'IQD' }))
+            .rejects.toThrow('Alqasa provider not initialized');
+    });
+});
