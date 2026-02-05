@@ -1,22 +1,43 @@
 {
-  "name": "@YOUR_GITHUB_USERNAME/payment-sdk",
+  "name": "iq-payment-sdk",
   "version": "1.0.0",
   "description": "Unified Payment SDK for Alqasa and Zaincash",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "build": "tsc",
+    "prepublishOnly": "npm run build && npm test",
     "test": "jest",
-    "test:manual": "ts-node test/test-sdk.ts"
+    "test:manual": "ts-node test/test-sdk.ts",
+    "clean": "rm -rf dist"
   },
+  "keywords": [
+    "payment",
+    "sdk",
+    "alqasa",
+    "zaincash",
+    "stripe",
+    "asiapay",
+    "typescript",
+    "nodejs"
+  ],
   "author": "Ali Hammad",
   "license": "ISC",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/YOUR_GITHUB_USERNAME/payment-sdk.git"
+    "url": "git+https://github.com/alihammad99/payment-sdk.git"
   },
+  "bugs": {
+    "url": "https://github.com/alihammad99/payment-sdk/issues"
+  },
+  "homepage": "https://github.com/alihammad99/payment-sdk#readme",
   "publishConfig": {
-    "registry": "https://npm.pkg.github.com"
+    "registry": "https://registry.npmjs.org/"
   },
   "devDependencies": {
     "@types/jest": "^30.0.0",

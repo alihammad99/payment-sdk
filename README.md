@@ -12,7 +12,7 @@ Unified Payment SDK for integrating multiple payment providers like Alqasa, Zain
 ## Installation
 
 ```bash
-npm install payment-sdk
+npm install iq-payment-sdk
 ```
 
 ## Usage
@@ -20,7 +20,7 @@ npm install payment-sdk
 ### Alqasa Provider
 
 ```typescript
-import { AlqasaClient } from 'payment-sdk';
+import { AlqasaClient } from 'iq-payment-sdk';
 
 // Initialize with token
 const client = new AlqasaClient('YOUR_API_TOKEN');
@@ -49,7 +49,7 @@ async function createPayment() {
 ### ZainCash Provider
 
 ```typescript
-import { ZaincashClient } from 'payment-sdk';
+import { ZaincashClient } from 'iq-payment-sdk';
 
 const client = new ZaincashClient({
   production: false, // Set to true for production
